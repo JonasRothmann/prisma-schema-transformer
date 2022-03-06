@@ -88,15 +88,21 @@ const handlers = (type, kind) => {
 // Handler for Attributes
 // https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema/data-model#attributes
 function handleAttributes(attributes: Attribute, kind: DMMF.FieldKind, type: string) {
-	const {relationFromFields, relationToFields, relationName} = attributes;
+	const {relationFromFields, relationToFields, relationName, columnName} = attributes;
 	if (kind === 'scalar') {
 		return `${Object.keys(attributes).map(each => handlers(type, kind)[each](attributes[each])).join(' ')}`;
 	}
 
 	if (kind === 'object' && relationFromFields) {
-		return relationFromFields.length > 0 ?
-			`@relation(name: "${relationName}", fields: [${relationFromFields}], references: [${relationToFields}])` :
-			`@relation(name: "${relationName}")`;
+    if(columnName) {
+      return relationFromFields.length > 0 ?
+        `@relation(name: "${columnName || ''}", fields: [${relationFromFields}], references: [${relationToFields}])` :
+        `@relation(name: "${columnName || ''}")`;
+    }
+
+    return relationFromFields.length > 0 ?
+      `@relation(fields: [${relationFromFields}], references: [${relationToFields}])` :
+      `//asd`;
 	}
 
 	if (kind === 'enum')

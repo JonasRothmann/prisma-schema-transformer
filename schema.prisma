@@ -1,0 +1,1734 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator nexusPrisma {
+  provider = "nexus-prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model address {
+  id                                     Int               @id @default(autoincrement())
+  email                                  String?           @db.VarChar(255)
+  first_name                             String?           @db.VarChar(255)
+  last_name                              String?           @db.VarChar(255)
+  attention                              String?           @db.VarChar(255)
+  street_address                         String?           @db.VarChar(255)
+  building_number                        String?           @db.VarChar(255)
+  secondary_address                      String?           @db.VarChar(255)
+  address_line3                          String?           @db.VarChar(255)
+  zipcode                                String?           @db.VarChar(255)
+  city                                   String?           @db.VarChar(255)
+  state                                  String?           @db.VarChar(255)
+  country                                String?           @db.VarChar(255)
+  phone_number                           String?           @db.VarChar(255)
+  website                                String?           @db.VarChar(255)
+  company                                company[]
+  customer_product                       customer_product?
+  user_addressTouser_billing_address_id  user?             @relation("addressTouser_billing_address_id")
+  user_addressTouser_delivery_address_id user?             @relation("addressTouser_delivery_address_id")
+}
+
+model admin {
+  id   Int  @id
+  user user @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "FK_880E0D76BF396750")
+}
+
+model admin_error {
+  id          Int      @id @default(autoincrement())
+  company_id  Int?
+  user_id     Int?
+  createddate DateTime @db.DateTime(0)
+  error       String?  @db.LongText
+  location    String?  @db.LongText
+  manual      Boolean? @default(false)
+  company     company? @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_FDF7478B979B1AD6")
+  user        user?    @relation(fields: [user_id], references: [id], onUpdate: Restrict, map: "FK_FDF7478BA76ED395")
+
+  @@index([company_id], map: "IDX_FDF7478B979B1AD6")
+  @@index([user_id], map: "IDX_FDF7478BA76ED395")
+}
+
+model admin_setting {
+  id                Int     @id @default(autoincrement())
+  welcome_mail_file String? @db.VarChar(255)
+  domain            String? @db.VarChar(255)
+  version           String? @db.VarChar(255)
+}
+
+model apollo_error {
+  id     Int    @id @default(autoincrement())
+  error  String @db.Text
+  origin String @db.VarChar(255)
+}
+
+model booking_product {
+  id      Int     @id
+  product product @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "FK_89F4418DBF396750")
+}
+
+model category {
+  id                                                    Int                @id @default(autoincrement())
+  page_id                                               Int?
+  company_id                                            Int?
+  name                                                  String             @db.VarChar(255)
+  description                                           String?            @db.LongText
+  slug                                                  String             @unique(map: "UNIQ_64C19C1989D9B62") @db.VarChar(128)
+  image                                                 String?            @db.VarChar(255)
+  createdAt                                             DateTime           @db.DateTime(0)
+  discr                                                 String             @db.VarChar(255)
+  report_control_lines                                  String?            @db.LongText
+  price                                                 String?            @db.VarChar(255)
+  discount                                              String?            @db.VarChar(255)
+  discount_active                                       Boolean?           @default(false)
+  auto_renew_in_days                                    String?            @db.VarChar(255)
+  auto_renew                                            Boolean?           @default(true)
+  auto_renew_in_months                                  String?            @db.VarChar(255)
+  precedence                                            String?            @db.VarChar(255)
+  report_template_id                                    Int?
+  tags                                                  String?            @db.LongText
+  company_category_company_idTocompany                  company?           @relation("category_company_idTocompany", fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_64C19C1979B1AD6")
+  page                                                  page?              @relation(fields: [page_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_64C19C1C4663E4")
+  report_template                                       report_template?   @relation(fields: [report_template_id], references: [id], onUpdate: Restrict, map: "FK_64C19C1B4C2A4B0")
+  company_categoryTocompany_default_service_category_id company[]          @relation("categoryTocompany_default_service_category_id")
+  company_category                                      company_category[]
+  product                                               product[]
+  visit                                                 visit[]
+
+  @@index([company_id], map: "IDX_64C19C1979B1AD6")
+  @@index([report_template_id], map: "IDX_64C19C1B4C2A4B0")
+  @@index([page_id], map: "IDX_64C19C1C4663E4")
+}
+
+model company {
+  id                                                     Int                    @id @default(autoincrement())
+  address_id                                             Int?
+  image_id                                               Int?
+  name                                                   String?                @db.VarChar(255)
+  cvr                                                    String?                @db.VarChar(255)
+  website                                                String?                @db.VarChar(255)
+  email                                                  String?                @db.VarChar(255)
+  created_at                                             DateTime               @db.DateTime(0)
+  sender_name                                            String?                @db.VarChar(255)
+  invoice_prefix                                         String?                @db.VarChar(255)
+  sender_email                                           String?                @db.VarChar(255)
+  support_phone                                          String?                @db.VarChar(255)
+  support_email                                          String?                @db.VarChar(255)
+  analytics                                              String?                @db.Text
+  campaign_host                                          String?                @db.VarChar(255)
+  email_reset_html                                       String?                @db.Text
+  email_reset_subject                                    String?                @db.VarChar(255)
+  email_reset_sender                                     String?                @db.VarChar(255)
+  email_message_html                                     String?                @db.Text
+  email_message_subject                                  String?                @db.VarChar(255)
+  email_message_sender                                   String?                @db.VarChar(255)
+  profile_facebook_url                                   String?                @default("") @db.VarChar(255)
+  profile_twitter_url                                    String?                @default("") @db.VarChar(255)
+  profile_google_plus_url                                String?                @default("") @db.VarChar(255)
+  profile_instagram_url                                  String?                @default("") @db.VarChar(255)
+  profile_linked_in_url                                  String?                @default("") @db.VarChar(255)
+  profile_youtube_url                                    String?                @default("") @db.VarChar(255)
+  profile_pinterest_url                                  String?                @default("") @db.VarChar(255)
+  profile_tumblr_url                                     String?                @default("") @db.VarChar(255)
+  profile_snapchat_url                                   String?                @db.VarChar(255)
+  home_page_url                                          String?                @db.VarChar(255)
+  description                                            String?                @db.LongText
+  opening_hours                                          String?                @db.LongText
+  discr                                                  String                 @db.VarChar(255)
+  zip_range                                              String?                @db.VarChar(255)
+  fixed_price_one_visit                                  Decimal?               @db.Decimal(10, 2)
+  hourly_rate                                            Decimal?               @db.Decimal(10, 2)
+  payment_delay_days                                     Int?                   @default(14)
+  bank_reg_no                                            Int?
+  bank_account_no                                        String?                @db.VarChar(255)
+  contact_name                                           String?                @db.VarChar(255)
+  contact_email                                          String?                @db.VarChar(255)
+  managed_by_super_admin                                 Boolean?               @default(false)
+  renamed_category                                       String?                @db.VarChar(255)
+  renamed_supplier                                       String?                @db.VarChar(255)
+  renamed_model                                          String?                @db.VarChar(255)
+  use_category                                           Boolean?               @default(true)
+  use_supplier                                           Boolean?               @default(true)
+  use_model                                              Boolean?               @default(true)
+  use_year                                               Boolean?               @default(true)
+  use_size                                               Boolean?               @default(true)
+  size_unit                                              String?                @db.VarChar(255)
+  renamed_category_plural                                String?                @db.VarChar(255)
+  renamed_supplier_plural                                String?                @db.VarChar(255)
+  renamed_model_plural                                   String?                @db.VarChar(255)
+  delivery_in_store                                      Boolean?               @default(false)
+  industry_id                                            Int?
+  show_technician_backend_link                           Boolean?               @default(false)
+  show_datepicker_and_timeslot_in_flow                   Boolean?               @default(true)
+  internal_note                                          String?                @db.LongText
+  bookingflowactive                                      Boolean?               @default(true)
+  headless_api_key                                       String?                @db.VarChar(255)
+  headless_api_secret                                    String?                @db.VarChar(255)
+  headless_api_public_token                              String?                @db.VarChar(255)
+  headless_api_company_id                                String?                @db.VarChar(255)
+  headless_api_website_id_dk                             String?                @db.VarChar(255)
+  headless_api_economic_active                           Boolean?               @default(false)
+  headless_api_economic_app_token                        String?                @db.VarChar(255)
+  terms_url                                              String?                @db.LongText
+  active                                                 Boolean?               @default(false)
+  servicestyring_payment_interval                        String?                @db.VarChar(255)
+  welcome_mail_text                                      String?                @db.LongText
+  welcome_mail_extra_receivers                           String?                @db.LongText
+  welcome_mail_file                                      String?                @db.VarChar(255)
+  accepted_terms_at                                      DateTime?              @db.DateTime(0)
+  company_number                                         Int?
+  bookingflow_allow_book_filled_timeslot                 Boolean?               @default(true)
+  show_materials                                         Boolean?               @default(false)
+  renamed_info_box1                                      String?                @db.VarChar(255)
+  renamed_info_box2                                      String?                @db.VarChar(255)
+  send_welcome_mail_to_customer                          Boolean?               @default(true)
+  show_invoice_payment_option                            Boolean?               @default(false)
+  columns_activated                                      Boolean?               @default(true)
+  renamed_column1                                        String?                @db.VarChar(255)
+  renamed_column2                                        String?                @db.VarChar(255)
+  renamed_column3                                        String?                @db.VarChar(255)
+  allow_visit_documents                                  Boolean?               @default(true)
+  allow_auto_complete_visit                              Boolean?               @default(false)
+  allow_show_visit_time_regs                             Boolean?               @default(false)
+  show_finance_tab                                       Boolean?               @default(false)
+  suspend                                                Boolean?               @default(false)
+  enable_imports                                         Boolean?               @default(false)
+  allow_customer_documents                               Boolean?               @default(true)
+  allow_material_documents                               Boolean?               @default(true)
+  headless_api_dinero_settings_saved                     Boolean?               @default(false)
+  headless_api_dinero_company_id                         String?                @db.VarChar(255)
+  renamed_custom_product_column1                         String?                @db.VarChar(255)
+  renamed_custom_product_column2                         String?                @db.VarChar(255)
+  renamed_custom_product_column3                         String?                @db.VarChar(255)
+  materiel_service_active                                Boolean?               @default(false)
+  allow_customer_login                                   Boolean?               @default(false)
+  default_service_category_id                            Int?
+  materiel_service_interval_months                       Int?                   @default(12)
+  headless_api_dinero_active                             Boolean?               @default(false)
+  headless_api_dinero_key                                String?                @db.VarChar(255)
+  stripe_id                                              String?                @db.VarChar(255)
+  fields_id                                              Int?
+  show_rental                                            Boolean?               @default(false)
+  send_report_copy_to_company                            Boolean?               @default(false)
+  send_invoice_copy_to_company                           Boolean?               @default(false)
+  use_performance_patch                                  Boolean?               @default(false)
+  address                                                address?               @relation(fields: [address_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_4FBF094FF5B7AF75")
+  category_categoryTocompany_default_service_category_id category?              @relation("categoryTocompany_default_service_category_id", fields: [default_service_category_id], references: [id], onUpdate: Restrict, map: "FK_4FBF094F77005013")
+  company_fields                                         company_fields?        @relation(fields: [fields_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_4FBF094F2C5439AE")
+  image                                                  image?                 @relation(fields: [image_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_4FBF094F3DA5256D")
+  industry                                               industry?              @relation(fields: [industry_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_4FBF094F2B19A734")
+  admin_error                                            admin_error[]
+  category_category_company_idTocompany                  category[]             @relation("category_company_idTocompany")
+  company_category                                       company_category[]
+  company_license                                        company_license[]
+  customer_address                                       customer_address[]
+  customer_product                                       customer_product[]
+  customer_setting                                       customer_setting[]
+  customtag                                              customtag[]
+  deleted_user                                           deleted_user[]
+  document                                               document[]
+  invoice                                                invoice[]
+  invoice_setting                                        invoice_setting[]
+  item                                                   item[]
+  item_group                                             item_group[]
+  materiel                                               materiel[]
+  msg                                                    msg[]
+  notification                                           notification[]
+  payment                                                payment[]
+  payment_setting                                        payment_setting[]
+  product                                                product[]
+  product_setting                                        product_setting[]
+  property                                               property[]
+  report_template                                        report_template[]
+  sales_order_companyTosales_order_company_id            sales_order[]          @relation("companyTosales_order_company_id")
+  sales_order_companyTosales_order_customer_company_id   sales_order[]          @relation("companyTosales_order_customer_company_id")
+  stripe_setting                                         stripe_setting[]
+  subscription_companyTosubscription_company_id          subscription[]         @relation("companyTosubscription_company_id")
+  subscription_companyTosubscription_customer_company_id subscription[]         @relation("companyTosubscription_customer_company_id")
+  subscription_setting                                   subscription_setting[]
+  supplier                                               supplier[]
+  tag                                                    tag[]
+  text                                                   text[]
+  time_reg                                               time_reg[]
+  time_reg_sum                                           time_reg_sum[]
+  timeslot                                               timeslot[]
+  user_companyTouser_company_id                          user[]                 @relation("companyTouser_company_id")
+  user_companyTouser_customer_company_id                 user[]                 @relation("companyTouser_customer_company_id")
+  user_notification                                      user_notification[]
+  visit                                                  visit[]
+  waitlist                                               waitlist[]
+  website_companyTowebsite_company_id                    website[]              @relation("companyTowebsite_company_id")
+  website_companyTowebsite_customer_company_id           website[]              @relation("companyTowebsite_customer_company_id")
+  website_setting                                        website_setting[]
+
+  @@index([industry_id], map: "IDX_4FBF094F2B19A734")
+  @@index([fields_id], map: "IDX_4FBF094F2C5439AE")
+  @@index([image_id], map: "IDX_4FBF094F3DA5256D")
+  @@index([default_service_category_id], map: "IDX_4FBF094F77005013")
+  @@index([address_id], map: "IDX_4FBF094FF5B7AF75")
+  @@index([discr], map: "discr")
+}
+
+model company_category {
+  id          Int       @id @default(autoincrement())
+  company_id  Int?
+  category_id Int?
+  price       String?   @db.VarChar(255)
+  category    category? @relation(fields: [category_id], references: [id], onUpdate: Restrict, map: "FK_1EDB0CAC12469DE2")
+  company     company?  @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_1EDB0CAC979B1AD6")
+
+  @@index([category_id], map: "IDX_1EDB0CAC12469DE2")
+  @@index([company_id], map: "IDX_1EDB0CAC979B1AD6")
+}
+
+model company_fields {
+  id      Int       @id @default(autoincrement())
+  name    String    @db.VarChar(255)
+  fields  String?   @db.LongText
+  company company[]
+}
+
+model company_license {
+  id         Int      @id @default(autoincrement())
+  company_id Int?
+  created_at DateTime @db.DateTime(0)
+  stats      String?  @db.LongText
+  company    company? @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_773AEECE979B1AD6")
+
+  @@index([company_id], map: "IDX_773AEECE979B1AD6")
+}
+
+model customer {
+  id                   Int                 @id
+  invoice_name         String?             @db.VarChar(255)
+  invoice_address      String?             @db.VarChar(255)
+  invoice_zip          String?             @db.VarChar(255)
+  invoice_city         String?             @db.VarChar(255)
+  invoice_email        String?             @db.VarChar(255)
+  comment_last_booking String?             @db.VarChar(255)
+  parent_customer_id   Int?
+  alt_email            String?             @db.VarChar(255)
+  materiel             Boolean?            @default(false)
+  column1              String?             @db.VarChar(255)
+  column2              String?             @db.VarChar(255)
+  column3              String?             @db.VarChar(255)
+  send_invoice_to_me   Boolean?            @default(false)
+  coords_lng           Float?
+  coords_lat           Float?
+  archived             Boolean             @default(false)
+  tags                 String?             @db.LongText
+  description          String?             @db.LongText
+  allowed_to_login     Boolean?            @default(false)
+  user                 user                @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "FK_81398E09BF396750")
+  customer             customer?           @relation("customerTocustomer_parent_customer_id", fields: [parent_customer_id], references: [id], onUpdate: Restrict, map: "FK_81398E09F8B9D183")
+  other_customer       customer[]          @relation("customerTocustomer_parent_customer_id")
+  customer_address     customer_address[]
+  customer_product     customer_product[]
+  materiel_customer    materiel_customer[]
+  user_notification    user_notification[]
+  visit                visit[]
+
+  @@index([parent_customer_id], map: "IDX_81398E09F8B9D183")
+}
+
+model customer_address {
+  id            Int       @id @default(autoincrement())
+  company_id    Int?
+  createddate   DateTime  @db.DateTime(0)
+  firstname     String?   @db.VarChar(255)
+  address       String?   @db.VarChar(255)
+  zip           String?   @db.VarChar(255)
+  city          String?   @db.VarChar(255)
+  email         String?   @db.VarChar(255)
+  phone         String?   @db.VarChar(255)
+  type          String?   @db.VarChar(255)
+  customer_id   Int?
+  lastname      String?   @db.VarChar(255)
+  country       String?   @db.VarChar(255)
+  internal_note String?   @db.LongText
+  title         String?   @db.VarChar(255)
+  company       company?  @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_1193CB3F979B1AD6")
+  customer      customer? @relation(fields: [customer_id], references: [id], onUpdate: Restrict, map: "FK_1193CB3F9395C3F3")
+  visit         visit[]
+
+  @@index([customer_id], map: "IDX_1193CB3F9395C3F3")
+  @@index([company_id], map: "IDX_1193CB3F979B1AD6")
+}
+
+model customer_product {
+  id                        Int                         @id @default(autoincrement())
+  company_id                Int?
+  customer_id               Int?
+  address_id                Int?                        @unique(map: "UNIQ_CF97A013F5B7AF75")
+  created_at                DateTime                    @db.DateTime(0)
+  last_service              DateTime                    @db.DateTime(0)
+  name                      String?                     @db.VarChar(255)
+  sku                       String?                     @db.VarChar(255)
+  version                   String?                     @db.VarChar(255)
+  internal_note             String?                     @db.LongText
+  column1                   String?                     @db.LongText
+  column2                   String?                     @db.LongText
+  column3                   String?                     @db.LongText
+  description               String?                     @db.LongText
+  address                   address?                    @relation(fields: [address_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_CF97A013F5B7AF75")
+  company                   company?                    @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_CF97A013979B1AD6")
+  customer                  customer?                   @relation(fields: [customer_id], references: [id], onUpdate: Restrict, map: "FK_CF97A0139395C3F3")
+  customer_product_document customer_product_document[]
+
+  @@index([customer_id], map: "IDX_CF97A0139395C3F3")
+  @@index([company_id], map: "IDX_CF97A013979B1AD6")
+}
+
+model customer_product_document {
+  customer_product_id Int
+  document_id         Int
+  customer_product    customer_product @relation(fields: [customer_product_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "FK_378B2FDB84D62D8")
+  document            document         @relation(fields: [document_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "FK_378B2FDC33F7837")
+
+  @@id([customer_product_id, document_id])
+  @@index([customer_product_id], map: "IDX_378B2FDB84D62D8")
+  @@index([document_id], map: "IDX_378B2FDC33F7837")
+}
+
+model customer_setting {
+  id                                                                 Int             @id @default(autoincrement())
+  account_created_id                                                 Int?            @unique(map: "UNIQ_83A91C26A27BECE0")
+  reset_password_id                                                  Int?            @unique(map: "UNIQ_83A91C26444FB54B")
+  follow_up1_id                                                      Int?            @unique(map: "UNIQ_83A91C26E9C9E080")
+  follow_up2_id                                                      Int?            @unique(map: "UNIQ_83A91C26FB7C4F6E")
+  follow_up3_id                                                      Int?            @unique(map: "UNIQ_83A91C2643C0280B")
+  company_id                                                         Int?
+  email_template_customer_setting_account_created_idToemail_template email_template? @relation("customer_setting_account_created_idToemail_template", fields: [account_created_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_83A91C26A27BECE0")
+  company                                                            company?        @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_83A91C26979B1AD6")
+  email_template_customer_setting_follow_up1_idToemail_template      email_template? @relation("customer_setting_follow_up1_idToemail_template", fields: [follow_up1_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_83A91C26E9C9E080")
+  email_template_customer_setting_follow_up2_idToemail_template      email_template? @relation("customer_setting_follow_up2_idToemail_template", fields: [follow_up2_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_83A91C26FB7C4F6E")
+  email_template_customer_setting_follow_up3_idToemail_template      email_template? @relation("customer_setting_follow_up3_idToemail_template", fields: [follow_up3_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_83A91C2643C0280B")
+  email_template_customer_setting_reset_password_idToemail_template  email_template? @relation("customer_setting_reset_password_idToemail_template", fields: [reset_password_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_83A91C26444FB54B")
+
+  @@index([company_id], map: "IDX_83A91C26979B1AD6")
+}
+
+model customtag {
+  id                     Int      @id @default(autoincrement())
+  company_id             Int?
+  name                   String   @db.VarChar(255)
+  type                   String   @db.VarChar(255)
+  show_for_customer      Boolean? @default(true)
+  show_for_employee      Boolean? @default(true)
+  allow_change_on_report Boolean? @default(true)
+  mode                   String   @default("text") @db.VarChar(255)
+  options                String?  @db.VarChar(5000)
+  company                company? @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_3CCF5469979B1AD6")
+
+  @@index([company_id], map: "IDX_4821289979B1AD6")
+}
+
+model deleted_user {
+  id         Int      @id @default(autoincrement())
+  company_id Int?
+  email      String   @db.VarChar(255)
+  name       String?  @db.VarChar(255)
+  address    String?  @db.VarChar(255)
+  zip        String?  @db.VarChar(255)
+  city       String?  @db.VarChar(255)
+  phone      String?  @db.VarChar(100)
+  type       String?  @db.VarChar(255)
+  created_at DateTime @db.DateTime(0)
+  updated_at DateTime @db.DateTime(0)
+  company    company? @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_D8486B5C979B1AD6")
+
+  @@index([company_id], map: "IDX_D8486B5C979B1AD6")
+}
+
+model dimension {
+  id      Int      @id @default(autoincrement())
+  weight  Int?
+  height  Int?
+  width   Int?
+  depth   Int?
+  volume  Int?
+  product product?
+}
+
+model document {
+  id                                 Int                         @id @default(autoincrement())
+  user_id                            Int?
+  company_id                         Int?
+  name                               String?                     @db.VarChar(255)
+  path                               String?                     @db.VarChar(255)
+  created_at                         DateTime?                   @db.DateTime(0)
+  discr                              String                      @db.VarChar(255)
+  destination                        String?                     @db.VarChar(255)
+  extension                          String?                     @db.VarChar(255)
+  materiel_id                        Int?
+  uploaded_by_id                     Int?
+  company                            company?                    @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_D8698A76979B1AD6")
+  materiel                           materiel?                   @relation(fields: [materiel_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_D8698A7616880AAF")
+  user_document_uploaded_by_idTouser user?                       @relation("document_uploaded_by_idTouser", fields: [uploaded_by_id], references: [id], onUpdate: Restrict, map: "FK_D8698A76A2B28FE8")
+  user_document_user_idTouser        user?                       @relation("document_user_idTouser", fields: [user_id], references: [id], onUpdate: Restrict, map: "FK_D8698A76A76ED395")
+  customer_product_document          customer_product_document[]
+  materiel_document                  materiel_document[]
+  user_document                      user_document[]
+  visit_document                     visit_document[]
+
+  @@index([materiel_id], map: "IDX_D8698A7616880AAF")
+  @@index([company_id], map: "IDX_D8698A76979B1AD6")
+  @@index([uploaded_by_id], map: "IDX_D8698A76A2B28FE8")
+  @@index([user_id], map: "IDX_D8698A76A76ED395")
+}
+
+model email_log {
+  id            Int      @id @default(autoincrement())
+  receiverEmail String?  @db.VarChar(255)
+  template      String?  @db.VarChar(255)
+  subject       String?  @db.VarChar(255)
+  created_at    DateTime @db.DateTime(0)
+}
+
+model email_template {
+  id                                                                          Int                   @id @default(autoincrement())
+  senderName                                                                  String?               @db.VarChar(255)
+  senderEmail                                                                 String?               @db.VarChar(255)
+  subject                                                                     String?               @db.VarChar(255)
+  bodyHtml                                                                    String?               @db.LongText
+  bodyText                                                                    String?               @db.LongText
+  active                                                                      Boolean
+  customer_setting_customer_setting_account_created_idToemail_template        customer_setting?     @relation("customer_setting_account_created_idToemail_template")
+  customer_setting_customer_setting_follow_up1_idToemail_template             customer_setting?     @relation("customer_setting_follow_up1_idToemail_template")
+  customer_setting_customer_setting_follow_up2_idToemail_template             customer_setting?     @relation("customer_setting_follow_up2_idToemail_template")
+  customer_setting_customer_setting_follow_up3_idToemail_template             customer_setting?     @relation("customer_setting_follow_up3_idToemail_template")
+  customer_setting_customer_setting_reset_password_idToemail_template         customer_setting?     @relation("customer_setting_reset_password_idToemail_template")
+  invoice_setting                                                             invoice_setting?
+  payment_setting                                                             payment_setting?
+  product_setting                                                             product_setting?
+  subscription_setting                                                        subscription_setting?
+  website_setting_email_templateTowebsite_setting_website_created_id          website_setting?      @relation("email_templateTowebsite_setting_website_created_id")
+  website_setting_email_templateTowebsite_setting_website_deactivated_id      website_setting?      @relation("email_templateTowebsite_setting_website_deactivated_id")
+  website_setting_email_templateTowebsite_setting_website_deleted_id          website_setting?      @relation("email_templateTowebsite_setting_website_deleted_id")
+  website_setting_email_templateTowebsite_setting_website_pre_deactivation_id website_setting?      @relation("email_templateTowebsite_setting_website_pre_deactivation_id")
+}
+
+model employee {
+  id                          Int              @id
+  allowed_to_send_pdf         Boolean          @default(false)
+  hourly_rate                 Decimal?         @db.Decimal(10, 2)
+  show_prices_for_technician  Boolean          @default(false)
+  allowed_to_create_visit     Boolean          @default(false)
+  allowed_to_reg_time         Boolean          @default(false)
+  allowed_to_upload_documents Boolean          @default(false)
+  allowed_to_invoice          Boolean          @default(false)
+  cost_price_rate             Decimal?         @db.Decimal(10, 2)
+  overtime_rate               Decimal?         @db.Decimal(10, 2)
+  driving_rate                Decimal?         @db.Decimal(10, 2)
+  time_rate                   Decimal?         @db.Decimal(10, 2)
+  active                      Boolean          @default(true)
+  tags                        String?          @db.LongText
+  allowed_to_complete_visit   Boolean          @default(true)
+  show_edit_visit_button      Boolean          @default(true)
+  user                        user             @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "FK_5D9F75A1BF396750")
+  visit                       visit[]
+  visit_employee              visit_employee[]
+}
+
+model event {
+  id                   Int       @id @default(autoincrement())
+  name                 String?   @db.VarChar(255)
+  data                 String?   @db.Text
+  value                Int?
+  created_at           DateTime  @db.DateTime(0)
+  user_id              String?   @db.VarChar(255)
+  subscription_id      String?   @db.VarChar(255)
+  product_id           String?   @db.VarChar(255)
+  company_id           String?   @db.VarChar(255)
+  customer_company_id  String?   @db.VarChar(255)
+  website_id           String?   @db.VarChar(255)
+  sales_order_id       String?   @db.VarChar(255)
+  elastic_processed_at DateTime? @db.DateTime(0)
+  librato_processed_at DateTime? @db.DateTime(0)
+
+  @@index([company_id], map: "company_id")
+  @@index([product_id], map: "product_id")
+  @@index([subscription_id], map: "subscription_id")
+  @@index([user_id], map: "user_id")
+}
+
+model image {
+  id            Int             @id @default(autoincrement())
+  name          String?         @db.VarChar(255)
+  path          String?         @db.VarChar(255)
+  created_at    DateTime?       @db.DateTime(0)
+  featured      Boolean         @default(false)
+  order         Int?
+  text          String?         @db.Text
+  company       company[]
+  product_image product_image[]
+  visit_image   visit_image[]
+}
+
+model industry {
+  id      Int       @id @default(autoincrement())
+  name    String    @db.VarChar(255)
+  company company[]
+}
+
+model invoice {
+  id                  Int      @id @default(autoincrement())
+  company_id          Int?
+  visit_id            Int?
+  headless_invoice_id String?  @db.VarChar(255)
+  createddate         DateTime @db.DateTime(0)
+  invoice_int         Int?
+  company             company? @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_90651744979B1AD6")
+  visit               visit?   @relation(fields: [visit_id], references: [id], onUpdate: Restrict, map: "FK_9065174475FA0FF2")
+
+  @@index([visit_id], map: "IDX_9065174475FA0FF2")
+  @@index([company_id], map: "IDX_90651744979B1AD6")
+}
+
+model invoice_setting {
+  id                       Int             @id @default(autoincrement())
+  invoice_email_receipt_id Int?            @unique(map: "UNIQ_6DAD8E4B8FC683CB")
+  company_id               Int?
+  invoicePrefix            String?         @db.VarChar(255)
+  invoiceStartNo           Int
+  company                  company?        @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_6DAD8E4B979B1AD6")
+  email_template           email_template? @relation(fields: [invoice_email_receipt_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_6DAD8E4B8FC683CB")
+
+  @@index([company_id], map: "IDX_6DAD8E4B979B1AD6")
+}
+
+model item {
+  id                Int         @id @default(autoincrement())
+  company_id        Int?
+  origin            String?     @db.VarChar(255)
+  item_id           String?     @db.VarChar(255)
+  name              String?     @db.VarChar(255)
+  sku               String?     @db.VarChar(255)
+  price             Decimal?    @db.Decimal(10, 2)
+  group_id          String?     @db.VarChar(255)
+  cost_price        Decimal?    @db.Decimal(10, 2)
+  list_price        Decimal?    @db.Decimal(10, 2)
+  item_group_id     Int?
+  price_overwritten Decimal?    @db.Decimal(10, 2)
+  tags              String?     @db.LongText
+  description       String?     @db.LongText
+  company           company?    @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_1F1B251E979B1AD6")
+  item_group        item_group? @relation(fields: [item_group_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_1F1B251E9259118C")
+
+  @@index([item_group_id], map: "IDX_1F1B251E9259118C")
+  @@index([company_id], map: "IDX_1F1B251E979B1AD6")
+}
+
+model item_group {
+  id         Int      @id @default(autoincrement())
+  company_id Int?
+  group_id   String?  @db.VarChar(255)
+  name       String?  @db.VarChar(255)
+  markup     Decimal? @db.Decimal(10, 2)
+  company    company? @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_47675F15979B1AD6")
+  item       item[]
+
+  @@index([company_id], map: "IDX_47675F15979B1AD6")
+}
+
+model link {
+  id   Int     @id @default(autoincrement())
+  url  String  @db.VarChar(255)
+  name String? @db.VarChar(40)
+}
+
+model materiel {
+  id                               Int                 @id @default(autoincrement())
+  company_id                       Int?
+  name                             String?             @db.VarChar(255)
+  sku                              String?             @db.VarChar(255)
+  address                          String?             @db.VarChar(255)
+  zipcode                          String?             @db.VarChar(255)
+  city                             String?             @db.VarChar(255)
+  country                          String?             @db.VarChar(255)
+  email                            String?             @db.VarChar(255)
+  phone                            String?             @db.VarChar(255)
+  internal_note                    String?             @db.LongText
+  column1                          String?             @db.LongText
+  column2                          String?             @db.LongText
+  column3                          String?             @db.LongText
+  last_service                     DateTime?           @db.DateTime(0)
+  description                      String?             @db.LongText
+  last_reminder_mail_sent          DateTime?           @db.DateTime(0)
+  days_before_service_for_reminder Int?
+  tags                             String?             @db.LongText
+  service_active                   Boolean?            @default(false)
+  set_date_manually                Boolean?            @default(false)
+  company                          company?            @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_18D2B091979B1AD6")
+  document                         document[]
+  materiel_customer                materiel_customer[]
+  materiel_document                materiel_document[]
+  visit                            visit[]
+
+  @@index([company_id], map: "IDX_18D2B091979B1AD6")
+}
+
+model materiel_customer {
+  materiel_id Int
+  customer_id Int
+  customer    customer @relation(fields: [customer_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "FK_7738D9299395C3F3")
+  materiel    materiel @relation(fields: [materiel_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "FK_7738D92916880AAF")
+
+  @@id([materiel_id, customer_id])
+  @@index([materiel_id], map: "IDX_7738D92916880AAF")
+  @@index([customer_id], map: "IDX_7738D9299395C3F3")
+}
+
+model materiel_document {
+  materiel_id Int
+  document_id Int
+  document    document @relation(fields: [document_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "FK_2E68DD56C33F7837")
+  materiel    materiel @relation(fields: [materiel_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "FK_2E68DD5616880AAF")
+
+  @@id([materiel_id, document_id])
+  @@index([materiel_id], map: "IDX_2E68DD5616880AAF")
+  @@index([document_id], map: "IDX_2E68DD56C33F7837")
+}
+
+model migration_versions {
+  version String @id @db.VarChar(255)
+}
+
+model msg {
+  id                          Int                 @id @default(autoincrement())
+  company_id                  Int?
+  visit_id                    Int?
+  from_user_id                Int?
+  to_user_id                  Int?
+  createddate                 DateTime            @db.DateTime(0)
+  message                     String?             @db.Text
+  note                        String?             @db.Text
+  type                        String              @db.VarChar(10)
+  area                        String              @db.VarChar(10)
+  action                      String?             @db.VarChar(32)
+  from_user_name              String?             @db.VarChar(255)
+  to_user_name                String?             @db.VarChar(255)
+  private                     Boolean?            @default(false)
+  company                     company?            @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_688A5FAF979B1AD6")
+  user_msg_from_user_idTouser user?               @relation("msg_from_user_idTouser", fields: [from_user_id], references: [id], onUpdate: Restrict, map: "FK_688A5FAF2130303A")
+  user_msg_to_user_idTouser   user?               @relation("msg_to_user_idTouser", fields: [to_user_id], references: [id], onUpdate: Restrict, map: "FK_688A5FAF29F6EE60")
+  visit                       visit?              @relation(fields: [visit_id], references: [id], onUpdate: Restrict, map: "FK_688A5FAF75FA0FF2")
+  msg_read                    msg_read[]
+  user_notification           user_notification[]
+
+  @@index([from_user_id], map: "IDX_688A5FAF2130303A")
+  @@index([to_user_id], map: "IDX_688A5FAF29F6EE60")
+  @@index([visit_id], map: "IDX_688A5FAF75FA0FF2")
+  @@index([company_id], map: "IDX_688A5FAF979B1AD6")
+}
+
+model msg_read {
+  id        Int       @id @default(autoincrement())
+  msg_id    Int?
+  user_id   Int?
+  read_date DateTime? @db.DateTime(0)
+  seen      Boolean?  @default(false)
+  msg       msg?      @relation(fields: [msg_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_E5ED5936842BF4A0")
+  user      user?     @relation(fields: [user_id], references: [id], onUpdate: Restrict, map: "FK_E5ED5936A76ED395")
+
+  @@index([msg_id], map: "IDX_E5ED5936842BF4A0")
+  @@index([user_id], map: "IDX_E5ED5936A76ED395")
+}
+
+model notification {
+  id          Int      @id @default(autoincrement())
+  company_id  Int?
+  days_before Int
+  text        String?  @db.Text
+  time_hh     Int
+  time_mm     Int
+  company     company? @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_BF5476CA979B1AD6")
+
+  @@index([company_id], map: "IDX_BF5476CA979B1AD6")
+}
+
+model page {
+  id          Int        @id @default(autoincrement())
+  name        String     @db.VarChar(255)
+  description String?    @db.VarChar(255)
+  content     String?    @db.Text
+  slug        String?    @db.VarChar(128)
+  category    category[]
+  product     product?
+}
+
+model payment {
+  id                     Int                      @id @default(autoincrement())
+  user_id                Int?
+  sales_order_id         Int?
+  amount                 Decimal                  @db.Decimal(10, 0)
+  currency               String                   @db.VarChar(3)
+  provider               String                   @db.VarChar(255)
+  method                 String                   @db.VarChar(255)
+  cardType               String?                  @db.VarChar(255)
+  createdAt              DateTime                 @db.DateTime(0)
+  company_id             Int?
+  company                company?                 @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_6D28840D979B1AD6")
+  sales_order            sales_order?             @relation(fields: [sales_order_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_6D28840DC023F51C")
+  user                   user?                    @relation(fields: [user_id], references: [id], onUpdate: Restrict, map: "FK_6D28840DA76ED395")
+  payment_stripe_charge  payment_stripe_charge[]
+  payment_virtual_charge payment_virtual_charge[]
+
+  @@index([company_id], map: "IDX_6D28840D979B1AD6")
+  @@index([user_id], map: "IDX_6D28840DA76ED395")
+  @@index([sales_order_id], map: "IDX_6D28840DC023F51C")
+}
+
+model payment_failure {
+  id                                     Int                                      @id @default(autoincrement())
+  user_id                                Int?
+  createdAt                              DateTime                                 @db.DateTime(0)
+  errorMessage                           String?                                  @db.VarChar(255)
+  user                                   user?                                    @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_38D20D2BA76ED395")
+  payment_stripe_invoice_payment_failure payment_stripe_invoice_payment_failure[]
+
+  @@index([user_id], map: "IDX_38D20D2BA76ED395")
+}
+
+model payment_setting {
+  id                      Int             @id @default(autoincrement())
+  email_payment_failed_id Int?            @unique(map: "UNIQ_863DB672DE9D3E16")
+  company_id              Int?
+  primary_provider        String?         @db.VarChar(255)
+  company                 company?        @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_863DB672979B1AD6")
+  email_template          email_template? @relation(fields: [email_payment_failed_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_863DB672DE9D3E16")
+
+  @@index([company_id], map: "IDX_863DB672979B1AD6")
+}
+
+model payment_stripe_charge {
+  id             Int      @id @default(autoincrement())
+  payment_id     Int?
+  stripeChargeId String   @db.VarChar(255)
+  createdAt      DateTime @db.DateTime(0)
+  currency       String   @db.VarChar(3)
+  stripeEventId  String?  @db.VarChar(255)
+  payment        payment? @relation(fields: [payment_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_22D0C54C3A3BB")
+
+  @@index([payment_id], map: "IDX_22D0C54C3A3BB")
+}
+
+model payment_stripe_customer {
+  id               Int           @id @default(autoincrement())
+  user_id          Int?
+  subscription_id  Int?
+  createdAt        DateTime      @db.DateTime(0)
+  stripeCustomerId String        @db.VarChar(255)
+  subscription     subscription? @relation(fields: [subscription_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_DBF6BE999A1887DC")
+  user             user?         @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_DBF6BE99A76ED395")
+
+  @@index([subscription_id], map: "IDX_DBF6BE999A1887DC")
+  @@index([user_id], map: "IDX_DBF6BE99A76ED395")
+}
+
+model payment_stripe_invoice_payment_failure {
+  id                 Int              @id @default(autoincrement())
+  user_id            Int?
+  payment_failure_id Int?
+  stripeChargeId     String           @db.VarChar(255)
+  createdAt          DateTime         @db.DateTime(0)
+  stripeEventId      String?          @db.VarChar(255)
+  stripeInvoiceId    String?          @db.VarChar(255)
+  chargeErrorCode    String?          @db.VarChar(255)
+  chargeErrorMessage String?          @db.VarChar(255)
+  attemptCount       Int?
+  invoicedClosed     Boolean?
+  payment_failure    payment_failure? @relation(fields: [payment_failure_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_31DE5AC28F2AA1BC")
+  user               user?            @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_31DE5AC2A76ED395")
+
+  @@index([payment_failure_id], map: "IDX_31DE5AC28F2AA1BC")
+  @@index([user_id], map: "IDX_31DE5AC2A76ED395")
+}
+
+model payment_stripe_manuel_retry {
+  id              Int       @id @default(autoincrement())
+  createdAt       DateTime  @db.DateTime(0)
+  scheduledAt     DateTime  @db.DateTime(0)
+  processedAt     DateTime? @db.DateTime(0)
+  invoicePaid     Boolean?
+  stripeInvoiceId String?   @db.VarChar(255)
+  errorMessage    String?   @db.VarChar(255)
+  attempt         Int?
+}
+
+model payment_stripe_subscription {
+  id                   Int           @id @default(autoincrement())
+  subscription_id      Int?
+  stripeSubscriptionId String        @db.VarChar(255)
+  stripeCustomerId     String        @db.VarChar(255)
+  createdAt            DateTime      @db.DateTime(0)
+  subscription         subscription? @relation(fields: [subscription_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_FD31138C9A1887DC")
+
+  @@index([subscription_id], map: "IDX_FD31138C9A1887DC")
+}
+
+model payment_virtual_charge {
+  id         Int      @id @default(autoincrement())
+  payment_id Int?
+  amount     Decimal  @db.Decimal(10, 0)
+  createdAt  DateTime @db.DateTime(0)
+  currency   String   @db.VarChar(3)
+  payment    payment? @relation(fields: [payment_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_C4DA279A4C3A3BB")
+
+  @@index([payment_id], map: "IDX_C4DA279A4C3A3BB")
+}
+
+model plesk {
+  id               Int      @id @default(autoincrement())
+  customer_id      Int?
+  webspace_id      Int?
+  database_id      Int?
+  database_user_id Int?
+  website          website?
+}
+
+model plesk_stats {
+  id         Int      @id @default(autoincrement())
+  website_id Int?
+  traffic_mb Int
+  storage_mb Int
+  date       DateTime @db.Date
+  website    website? @relation(fields: [website_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_8F5967F318F45C82")
+
+  @@index([website_id], map: "IDX_8F5967F318F45C82")
+}
+
+model price {
+  id                    Int           @id @default(autoincrement())
+  cost                  Float?
+  trade                 Float?
+  retail                Float?
+  net_retail            Float?
+  vat_retail            Float?
+  with_discount         Float?
+  discount_percent      Float?
+  discount_amount       Float?
+  vat                   Int?
+  discount_period_start DateTime?     @db.DateTime(0)
+  discount_period_end   DateTime?     @db.DateTime(0)
+  currency              String?       @db.VarChar(3)
+  product               product?
+  product_plan          product_plan?
+}
+
+model product {
+  id                   Int                   @id @default(autoincrement())
+  page_id              Int?                  @unique(map: "UNIQ_D34A04ADC4663E4")
+  price_id             Int?                  @unique(map: "UNIQ_D34A04ADD614C7E7")
+  dimension_id         Int?                  @unique(map: "UNIQ_D34A04AD277428AD")
+  category_id          Int?
+  created_by_id        Int?
+  supplier_id          Int?
+  company_id           Int?
+  name                 String                @db.VarChar(255)
+  snippet              String?               @db.VarChar(255)
+  description          String?               @db.Text
+  details              String?               @db.Text
+  image                String?               @db.VarChar(255)
+  slug                 String                @unique(map: "UNIQ_D34A04AD989D9B62") @db.VarChar(128)
+  sku                  String?               @db.VarChar(255)
+  unit                 String?               @db.VarChar(20)
+  enabled              Boolean?
+  preview              Boolean?
+  views                Int?
+  view_on_featured     Boolean
+  created_at           DateTime              @db.DateTime(0)
+  publish_from         DateTime?             @db.DateTime(0)
+  publish_to           DateTime?             @db.DateTime(0)
+  updated_at           DateTime?             @db.DateTime(0)
+  discr                String                @db.VarChar(255)
+  custom_tags          String?               @db.LongText
+  category             category?             @relation(fields: [category_id], references: [id], onUpdate: Restrict, map: "FK_D34A04AD12469DE2")
+  company              company?              @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_D34A04AD979B1AD6")
+  user                 user?                 @relation(fields: [created_by_id], references: [id], onUpdate: Restrict, map: "FK_D34A04ADB03A8386")
+  dimension            dimension?            @relation(fields: [dimension_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_D34A04AD277428AD")
+  page                 page?                 @relation(fields: [page_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_D34A04ADC4663E4")
+  price                price?                @relation(fields: [price_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_D34A04ADD614C7E7")
+  supplier             supplier?             @relation(fields: [supplier_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_D34A04AD2ADD6D8C")
+  booking_product      booking_product?
+  product_image        product_image[]
+  product_tags         product_tags[]
+  sales_order          sales_order[]
+  sales_order_line     sales_order_line[]
+  subscription         subscription[]
+  subscription_product subscription_product?
+  visit                visit[]
+  website              website[]
+
+  @@index([category_id], map: "IDX_D34A04AD12469DE2")
+  @@index([supplier_id], map: "IDX_D34A04AD2ADD6D8C")
+  @@index([company_id], map: "IDX_D34A04AD979B1AD6")
+  @@index([created_by_id], map: "IDX_D34A04ADB03A8386")
+  @@index([discr], map: "discr")
+}
+
+model product_image {
+  product_id Int
+  image_id   Int
+  image      image   @relation(fields: [image_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "FK_64617F033DA5256D")
+  product    product @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "FK_64617F034584665A")
+
+  @@id([product_id, image_id])
+  @@index([image_id], map: "IDX_64617F033DA5256D")
+  @@index([product_id], map: "IDX_64617F034584665A")
+}
+
+model product_plan {
+  id                     Int                    @id @default(autoincrement())
+  trial_price_id         Int?                   @unique(map: "UNIQ_50B279DC977E1E0")
+  plan_details_limits_id Int?                   @unique(map: "UNIQ_50B279DCC9B9E6A0")
+  trial_days             Int?
+  length_type            String?                @db.VarChar(255)
+  require_payment        Boolean?               @default(true)
+  product_plan_customer  product_plan_customer? @relation(fields: [plan_details_limits_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_50B279DCC9B9E6A0")
+  price                  price?                 @relation(fields: [trial_price_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_50B279DC977E1E0")
+  subscription_product   subscription_product?
+}
+
+model product_plan_customer {
+  id                                                                      Int           @id @default(autoincrement())
+  storage_gb                                                              Decimal?      @db.Decimal(10, 3)
+  bandwidth_gb                                                            Decimal?      @db.Decimal(10, 3)
+  visits                                                                  Int?
+  websites                                                                Int?
+  product_plan                                                            product_plan?
+  subscription_product_plan_customerTosubscription_plan_details_limits_id subscription? @relation("product_plan_customerTosubscription_plan_details_limits_id")
+  subscription_product_plan_customerTosubscription_plan_details_usage_id  subscription? @relation("product_plan_customerTosubscription_plan_details_usage_id")
+}
+
+model product_setting {
+  id                      Int             @id @default(autoincrement())
+  company_id              Int?
+  notify_user_products_id Int?            @unique(map: "UNIQ_4EADA32889BF1BDC")
+  company                 company?        @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_4EADA328979B1AD6")
+  email_template          email_template? @relation(fields: [notify_user_products_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_4EADA32889BF1BDC")
+
+  @@index([company_id], map: "IDX_4EADA328979B1AD6")
+}
+
+model product_tags {
+  product_id Int
+  tag_id     Int
+  product    product @relation(fields: [product_id], references: [id], onUpdate: Restrict, map: "FK_E254B6874584665A")
+  tag        tag     @relation(fields: [tag_id], references: [id], onUpdate: Restrict, map: "FK_E254B687BAD26311")
+
+  @@id([product_id, tag_id])
+  @@index([product_id], map: "IDX_E254B6874584665A")
+  @@index([tag_id], map: "IDX_E254B687BAD26311")
+}
+
+model property {
+  id            Int      @id @default(autoincrement())
+  company_id    Int?
+  name          String   @db.VarChar(255)
+  propertyValue String   @db.VarChar(255)
+  description   String?  @db.LongText
+  slug          String   @unique(map: "UNIQ_8BF21CDE989D9B62") @db.VarChar(128)
+  createdAt     DateTime @db.DateTime(0)
+  company       company? @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_8BF21CDE979B1AD6")
+
+  @@index([company_id], map: "IDX_8BF21CDE979B1AD6")
+}
+
+model report_template {
+  id                   Int        @id @default(autoincrement())
+  name                 String     @db.VarChar(255)
+  company_id           Int?
+  show_line_checkboxes Boolean?   @default(true)
+  show_prices          Boolean?   @default(true)
+  tags                 String?    @db.LongText
+  company              company?   @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_970086FE979B1AD6")
+  category             category[]
+  visit                visit[]
+
+  @@index([company_id], map: "IDX_970086FE979B1AD6")
+}
+
+model sales_order {
+  id                                               Int                @id @default(autoincrement())
+  user_id                                          Int?
+  company_id                                       Int?
+  customer_company_id                              Int?
+  product_id                                       Int?
+  subscription_id                                  Int?
+  shipment_id                                      Int?
+  createdAt                                        DateTime           @db.DateTime(0)
+  invoicedAt                                       DateTime?          @db.DateTime(0)
+  updatedAt                                        DateTime?          @db.DateTime(0)
+  period_start                                     DateTime?          @db.DateTime(0)
+  period_end                                       DateTime?          @db.DateTime(0)
+  orderNo                                          Int?
+  invoiceNo                                        Int?
+  invoiceStr                                       String?            @db.VarChar(255)
+  vat                                              Int?
+  source                                           String             @db.VarChar(255)
+  status                                           String             @db.VarChar(255)
+  currency                                         String             @db.VarChar(3)
+  paidAt                                           DateTime?          @db.DateTime(0)
+  paid_amount                                      Float?
+  description                                      String?            @db.VarChar(255)
+  discr                                            String             @db.VarChar(255)
+  company_companyTosales_order_company_id          company?           @relation("companyTosales_order_company_id", fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_36D222E979B1AD6")
+  company_companyTosales_order_customer_company_id company?           @relation("companyTosales_order_customer_company_id", fields: [customer_company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_36D222E6A521E54")
+  product                                          product?           @relation(fields: [product_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_36D222E4584665A")
+  shipment                                         shipment?          @relation(fields: [shipment_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_36D222E7BE036FC")
+  subscription                                     subscription?      @relation(fields: [subscription_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_36D222E9A1887DC")
+  user                                             user?              @relation(fields: [user_id], references: [id], onUpdate: Restrict, map: "FK_36D222EA76ED395")
+  payment                                          payment[]
+  sales_order_line                                 sales_order_line[]
+  visit                                            visit[]
+
+  @@index([product_id], map: "IDX_36D222E4584665A")
+  @@index([customer_company_id], map: "IDX_36D222E6A521E54")
+  @@index([shipment_id], map: "IDX_36D222E7BE036FC")
+  @@index([company_id], map: "IDX_36D222E979B1AD6")
+  @@index([subscription_id], map: "IDX_36D222E9A1887DC")
+  @@index([user_id], map: "IDX_36D222EA76ED395")
+  @@index([discr], map: "discr")
+}
+
+model sales_order_line {
+  id             Int          @id @default(autoincrement())
+  sales_order_id Int?
+  product_id     Int?
+  website_id     Int?
+  createdAt      DateTime     @db.DateTime(0)
+  updatedAt      DateTime?    @db.DateTime(0)
+  voidedAt       DateTime?    @db.DateTime(0)
+  price          Float
+  netPrice       Float
+  vatPrice       Float
+  name           String       @db.VarChar(255)
+  no             Int
+  totalPrice     Float
+  unit           String?      @db.VarChar(255)
+  product        product?     @relation(fields: [product_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_93D9398D4584665A")
+  sales_order    sales_order? @relation(fields: [sales_order_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_93D9398DC023F51C")
+  website        website?     @relation(fields: [website_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_93D9398D18F45C82")
+
+  @@index([website_id], map: "IDX_93D9398D18F45C82")
+  @@index([product_id], map: "IDX_93D9398D4584665A")
+  @@index([sales_order_id], map: "IDX_93D9398DC023F51C")
+}
+
+model shipment {
+  id                   Int                  @id @default(autoincrement())
+  product_id           Int
+  date                 DateTime             @db.Date
+  status               String               @db.VarChar(255)
+  subscription_product subscription_product @relation(fields: [product_id], references: [id], onUpdate: Restrict, map: "FK_2CB20DC4584665A")
+  sales_order          sales_order[]
+
+  @@index([product_id], map: "IDX_2CB20DC4584665A")
+}
+
+model spreadsheet {
+  id         Int       @id @default(autoincrement())
+  name       String?   @db.VarChar(255)
+  path       String?   @db.VarChar(255)
+  created_at DateTime? @db.DateTime(0)
+  featured   Boolean   @default(false)
+}
+
+model stripe_setting {
+  id          Int      @id @default(autoincrement())
+  company_id  Int?
+  public_key  String?  @db.VarChar(255)
+  private_key String?  @db.VarChar(255)
+  company     company? @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_B0B38962979B1AD6")
+
+  @@index([company_id], map: "IDX_B0B38962979B1AD6")
+}
+
+model subscription {
+  id                                                                               Int                           @id @default(autoincrement())
+  user_id                                                                          Int?
+  affiliate_id                                                                     Int?
+  product_id                                                                       Int?
+  customer_company_id                                                              Int?
+  plan_details_limits_id                                                           Int?                          @unique(map: "UNIQ_A3C664D3C9B9E6A0")
+  plan_details_usage_id                                                            Int?                          @unique(map: "UNIQ_A3C664D3FC5BA31D")
+  price                                                                            Decimal?                      @db.Decimal(10, 0)
+  active                                                                           Boolean?
+  currency                                                                         String?                       @db.VarChar(3)
+  cancelable_at                                                                    DateTime?                     @db.DateTime(0)
+  expires_at                                                                       DateTime?                     @db.DateTime(0)
+  unsubscribed_at                                                                  DateTime?                     @db.DateTime(0)
+  unsubscribed_by                                                                  Int?
+  created_at                                                                       DateTime                      @db.DateTime(0)
+  updated_at                                                                       DateTime?                     @db.DateTime(0)
+  periodStart                                                                      DateTime?                     @db.DateTime(0)
+  periodEnd                                                                        DateTime?                     @db.DateTime(0)
+  trial                                                                            Boolean?
+  paymentProvider                                                                  String?                       @db.VarChar(255)
+  company_id                                                                       Int?
+  user_subscription_affiliate_idTouser                                             user?                         @relation("subscription_affiliate_idTouser", fields: [affiliate_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_A3C664D39F12C49A")
+  company_companyTosubscription_company_id                                         company?                      @relation("companyTosubscription_company_id", fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_A3C664D3979B1AD6")
+  company_companyTosubscription_customer_company_id                                company?                      @relation("companyTosubscription_customer_company_id", fields: [customer_company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_A3C664D36A521E54")
+  product_plan_customer_product_plan_customerTosubscription_plan_details_limits_id product_plan_customer?        @relation("product_plan_customerTosubscription_plan_details_limits_id", fields: [plan_details_limits_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_A3C664D3C9B9E6A0")
+  product_plan_customer_product_plan_customerTosubscription_plan_details_usage_id  product_plan_customer?        @relation("product_plan_customerTosubscription_plan_details_usage_id", fields: [plan_details_usage_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_A3C664D3FC5BA31D")
+  product                                                                          product?                      @relation(fields: [product_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_A3C664D34584665A")
+  user_subscription_user_idTouser                                                  user?                         @relation("subscription_user_idTouser", fields: [user_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_A3C664D3A76ED395")
+  payment_stripe_customer                                                          payment_stripe_customer[]
+  payment_stripe_subscription                                                      payment_stripe_subscription[]
+  sales_order                                                                      sales_order[]
+  website                                                                          website[]
+
+  @@index([product_id], map: "IDX_A3C664D34584665A")
+  @@index([customer_company_id], map: "IDX_A3C664D36A521E54")
+  @@index([company_id], map: "IDX_A3C664D3979B1AD6")
+  @@index([affiliate_id], map: "IDX_A3C664D39F12C49A")
+  @@index([user_id], map: "IDX_A3C664D3A76ED395")
+}
+
+model subscription_product {
+  id              Int           @id
+  plan_details_id Int?          @unique(map: "UNIQ_A05FE436D6773D34")
+  product         product       @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "FK_A05FE436BF396750")
+  product_plan    product_plan? @relation(fields: [plan_details_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_A05FE436D6773D34")
+  shipment        shipment[]
+}
+
+model subscription_setting {
+  id                 Int             @id @default(autoincrement())
+  account_created_id Int?            @unique(map: "UNIQ_EC615803A27BECE0")
+  company_id         Int?
+  email_template     email_template? @relation(fields: [account_created_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_EC615803A27BECE0")
+  company            company?        @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_EC615803979B1AD6")
+
+  @@index([company_id], map: "IDX_EC615803979B1AD6")
+}
+
+model supplier {
+  id         Int       @id @default(autoincrement())
+  company_id Int?
+  name       String    @db.VarChar(255)
+  slug       String    @unique(map: "UNIQ_9B2A6C7E989D9B62") @db.VarChar(128)
+  createdAt  DateTime  @db.DateTime(0)
+  discr      String    @db.VarChar(255)
+  company    company?  @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_9B2A6C7E979B1AD6")
+  product    product[]
+  visit      visit[]
+
+  @@index([company_id], map: "IDX_9B2A6C7E979B1AD6")
+}
+
+model tag {
+  id           Int            @id @default(autoincrement())
+  company_id   Int?
+  name         String         @db.VarChar(255)
+  slug         String         @unique(map: "UNIQ_389B783989D9B62") @db.VarChar(128)
+  createdAt    DateTime       @db.DateTime(0)
+  discr        String         @db.VarChar(255)
+  company      company?       @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_389B783979B1AD6")
+  product_tags product_tags[]
+
+  @@index([company_id], map: "IDX_389B783979B1AD6")
+}
+
+model text {
+  id                                                     Int      @id @default(autoincrement())
+  company_id                                             Int?
+  frontend_flow_intro                                    String?  @db.Text
+  frontend_flow_information_step                         String?  @db.Text
+  frontend_flow_outro                                    String?  @db.Text
+  mail_customer_new_booking_subject                      String?  @db.VarChar(255)
+  mail_customer_new_booking                              String?  @db.Text
+  mail_customer_service_report_subject                   String?  @db.VarChar(255)
+  mail_customer_service_report                           String?  @db.Text
+  mail_customer_invoice_subject                          String?  @db.VarChar(255)
+  mail_customer_invoice                                  String?  @db.Text
+  mail_company_new_user_subject                          String?  @db.VarChar(255)
+  mail_company_new_user                                  String?  @db.Text
+  mail_company_reset_password_subject                    String?  @db.VarChar(255)
+  mail_company_reset_password                            String?  @db.Text
+  mail_company_waitlist_signup_subject                   String?  @db.VarChar(255)
+  mail_company_waitlist_signup                           String?  @db.Text
+  mail_customer_new_user_subject                         String?  @db.VarChar(255)
+  mail_customer_new_user                                 String?  @db.Text
+  mail_customer_confirmation_intro_text                  String?  @db.Text
+  mail_customer_confirmation_intro_text_materiel_service String?  @db.Text
+  mail_customer_materiel_service_reminder_intro_text     String?  @db.Text
+  report_k                                               String?  @db.VarChar(11)
+  report_i                                               String?  @db.VarChar(11)
+  report_u                                               String?  @db.VarChar(11)
+  report_r                                               String?  @db.VarChar(11)
+  report_kinfo                                           String?  @db.VarChar(255)
+  report_iinfo                                           String?  @db.VarChar(255)
+  report_uinfo                                           String?  @db.VarChar(255)
+  report_rinfo                                           String?  @db.VarChar(255)
+  report_lines_col1                                      String?  @db.VarChar(255)
+  report_lines_col2                                      String?  @db.VarChar(255)
+  report_lines_col3                                      String?  @db.VarChar(255)
+  report_lines_col4                                      String?  @db.VarChar(255)
+  company                                                company? @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_3B8BA7C7979B1AD6")
+
+  @@index([company_id], map: "IDX_3B8BA7C7979B1AD6")
+}
+
+model time_reg {
+  id              Int       @id @default(autoincrement())
+  company_id      Int?
+  visit_id        Int?
+  user_id         Int?
+  createddate     DateTime  @db.DateTime(0)
+  origin          String?   @db.VarChar(255)
+  minutes         Int?
+  hourly_rate     Decimal?  @db.Decimal(10, 2)
+  endedAt         DateTime  @db.DateTime(0)
+  completed       Boolean   @default(false)
+  summed          Boolean   @default(false)
+  text            String?   @db.LongText
+  type            String?   @db.VarChar(255)
+  km              Decimal?  @db.Decimal(10, 2)
+  cost_price_rate Decimal?  @db.Decimal(10, 2)
+  time_rate       Decimal?  @db.Decimal(10, 2)
+  extra_rate      Decimal?  @db.Decimal(10, 2)
+  amount          Decimal?  @db.Decimal(10, 2)
+  start           DateTime? @db.DateTime(0)
+  days            Int?
+  company         company?  @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_B9E9655F979B1AD6")
+  user            user?     @relation(fields: [user_id], references: [id], onUpdate: Restrict, map: "FK_B9E9655FA76ED395")
+  visit           visit?    @relation(fields: [visit_id], references: [id], onUpdate: Restrict, map: "FK_B9E9655F75FA0FF2")
+
+  @@index([visit_id], map: "IDX_B9E9655F75FA0FF2")
+  @@index([company_id], map: "IDX_B9E9655F979B1AD6")
+  @@index([user_id], map: "IDX_B9E9655FA76ED395")
+}
+
+model time_reg_sum {
+  id          Int      @id @default(autoincrement())
+  company_id  Int?
+  visit_id    Int?
+  user_id     Int?
+  created_at  DateTime @db.DateTime(0)
+  updated_at  DateTime @db.DateTime(0)
+  date        DateTime @db.DateTime(0)
+  origin      String?  @db.VarChar(255)
+  minutes     Int?
+  hourly_rate Decimal? @db.Decimal(10, 2)
+  text        String?  @db.LongText
+  type        String?  @db.VarChar(255)
+  km          Decimal? @db.Decimal(10, 2)
+  company     company? @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_65A5D305979B1AD6")
+  user        user?    @relation(fields: [user_id], references: [id], onUpdate: Restrict, map: "FK_65A5D305A76ED395")
+  visit       visit?   @relation(fields: [visit_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_65A5D30575FA0FF2")
+
+  @@index([visit_id], map: "IDX_65A5D30575FA0FF2")
+  @@index([company_id], map: "IDX_65A5D305979B1AD6")
+  @@index([user_id], map: "IDX_65A5D305A76ED395")
+}
+
+model timeslot {
+  id                       Int      @id @default(autoincrement())
+  date                     DateTime @db.Date
+  timeslot                 Int
+  alternativeTimeslot      String?  @db.VarChar(255)
+  total_timeslots          Int?
+  timeslots_booked         Int?
+  zip_range                String?  @db.VarChar(255)
+  company_id               Int?
+  created_via_auto_renewal Boolean? @default(false)
+  company                  company? @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_3BE452F7979B1AD6")
+  visit                    visit[]
+
+  @@index([company_id], map: "IDX_3BE452F7979B1AD6")
+}
+
+model user {
+  id                                                     Int                                      @id @default(autoincrement())
+  delivery_address_id                                    Int?                                     @unique(map: "UNIQ_8D93D649EBF23851")
+  billing_address_id                                     Int?                                     @unique(map: "UNIQ_8D93D64979D0C0E4")
+  company_id                                             Int?
+  customer_company_id                                    Int?
+  username                                               String?                                  @db.VarChar(255)
+  password                                               String?                                  @db.VarChar(64)
+  email                                                  String?                                  @db.VarChar(255)
+  is_active                                              Boolean?
+  is_expired                                             Boolean?
+  is_locked                                              Boolean?
+  login_hash                                             String?                                  @db.VarChar(255)
+  created_at                                             DateTime                                 @db.DateTime(0)
+  updated_at                                             DateTime?                                @db.DateTime(0)
+  first_name                                             String?                                  @db.VarChar(255)
+  last_name                                              String?                                  @db.VarChar(255)
+  street_address                                         String?                                  @db.VarChar(255)
+  building_number                                        String?                                  @db.VarChar(255)
+  secondary_address                                      String?                                  @db.VarChar(255)
+  zipcode                                                String?                                  @db.VarChar(255)
+  city                                                   String?                                  @db.VarChar(255)
+  country                                                String?                                  @db.VarChar(255)
+  birthday                                               DateTime?                                @db.Date
+  initials                                               String?                                  @db.Char(5)
+  title                                                  String?                                  @db.VarChar(3)
+  phone_number                                           String?                                  @db.VarChar(255)
+  cvr                                                    String?                                  @db.VarChar(20)
+  roles                                                  String?                                  @db.VarChar(255)
+  profile_image                                          String?                                  @db.VarChar(255)
+  ipv4                                                   String?                                  @db.VarChar(15)
+  ipv6                                                   String?                                  @db.VarChar(255)
+  approved                                               Boolean?
+  mobile_number                                          String?                                  @db.VarChar(16)
+  deleted_at                                             DateTime?                                @db.DateTime(0)
+  discr                                                  String                                   @db.VarChar(255)
+  welcome_mail_sent                                      Boolean                                  @default(false)
+  internal_note                                          String?                                  @db.LongText
+  sub_role                                               String?                                  @db.VarChar(255)
+  ean                                                    String?                                  @db.VarChar(20)
+  is_beta                                                Boolean?                                 @default(false)
+  company_name                                           String?                                  @db.VarChar(255)
+  last_password_reset                                    DateTime?                                @db.DateTime(0)
+  coords_set_via_cron                                    Boolean                                  @default(false)
+  address_addressTouser_billing_address_id               address?                                 @relation("addressTouser_billing_address_id", fields: [billing_address_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_8D93D64979D0C0E4")
+  company_companyTouser_company_id                       company?                                 @relation("companyTouser_company_id", fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_8D93D649979B1AD6")
+  company_companyTouser_customer_company_id              company?                                 @relation("companyTouser_customer_company_id", fields: [customer_company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_8D93D6496A521E54")
+  address_addressTouser_delivery_address_id              address?                                 @relation("addressTouser_delivery_address_id", fields: [delivery_address_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_8D93D649EBF23851")
+  admin                                                  admin?
+  admin_error                                            admin_error[]
+  customer                                               customer?
+  document_document_uploaded_by_idTouser                 document[]                               @relation("document_uploaded_by_idTouser")
+  document_document_user_idTouser                        document[]                               @relation("document_user_idTouser")
+  employee                                               employee?
+  msg_msg_from_user_idTouser                             msg[]                                    @relation("msg_from_user_idTouser")
+  msg_msg_to_user_idTouser                               msg[]                                    @relation("msg_to_user_idTouser")
+  msg_read                                               msg_read[]
+  payment                                                payment[]
+  payment_failure                                        payment_failure[]
+  payment_stripe_customer                                payment_stripe_customer[]
+  payment_stripe_invoice_payment_failure                 payment_stripe_invoice_payment_failure[]
+  product                                                product[]
+  sales_order                                            sales_order[]
+  subscription_subscription_affiliate_idTouser           subscription[]                           @relation("subscription_affiliate_idTouser")
+  subscription_subscription_user_idTouser                subscription[]                           @relation("subscription_user_idTouser")
+  time_reg                                               time_reg[]
+  time_reg_sum                                           time_reg_sum[]
+  user_document                                          user_document[]
+  user_notification_userTouser_notification_recipient_id user_notification[]                      @relation("userTouser_notification_recipient_id")
+  user_notification_userTouser_notification_sender_id    user_notification[]                      @relation("userTouser_notification_sender_id")
+
+  @@unique([email, company_id], map: "email_unique")
+  @@unique([username, company_id], map: "username_unique")
+  @@index([customer_company_id], map: "IDX_8D93D6496A521E54")
+  @@index([company_id], map: "IDX_8D93D649979B1AD6")
+  @@index([discr], map: "discr")
+  @@index([email, first_name, last_name, street_address, zipcode, city, phone_number], map: "search")
+}
+
+model user_document {
+  user_id     Int
+  document_id Int
+  document    document @relation(fields: [document_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "FK_38E46E76C33F7837")
+  user        user     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "FK_38E46E76A76ED395")
+
+  @@id([user_id, document_id])
+  @@index([user_id], map: "IDX_38E46E76A76ED395")
+  @@index([document_id], map: "IDX_38E46E76C33F7837")
+}
+
+model user_notification {
+  id                                        Int       @id @default(autoincrement())
+  company_id                                Int?
+  sender_id                                 Int?
+  recipient_id                              Int?
+  action                                    String    @db.VarChar(255)
+  message                                   String?   @db.VarChar(255)
+  visit_id                                  Int?
+  seen                                      Boolean   @default(false)
+  customer_id                               Int?
+  archived                                  Boolean?  @default(false)
+  created_at                                DateTime  @db.DateTime(0)
+  msg_id                                    Int?
+  company                                   company?  @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_3F980AC8979B1AD6")
+  customer                                  customer? @relation(fields: [customer_id], references: [id], onUpdate: Restrict, map: "FK_3F980AC89395C3F3")
+  msg                                       msg?      @relation(fields: [msg_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_3F980AC8842BF4A0")
+  user_userTouser_notification_recipient_id user?     @relation("userTouser_notification_recipient_id", fields: [recipient_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_3F980AC8E92F8F78")
+  user_userTouser_notification_sender_id    user?     @relation("userTouser_notification_sender_id", fields: [sender_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_3F980AC8F624B39D")
+  visit                                     visit?    @relation(fields: [visit_id], references: [id], onUpdate: Restrict, map: "FK_3F980AC875FA0FF2")
+
+  @@index([visit_id], map: "IDX_3F980AC875FA0FF2")
+  @@index([msg_id], map: "IDX_3F980AC8842BF4A0")
+  @@index([customer_id], map: "IDX_3F980AC89395C3F3")
+  @@index([company_id], map: "IDX_3F980AC8979B1AD6")
+  @@index([recipient_id], map: "IDX_3F980AC8E92F8F78")
+  @@index([sender_id], map: "IDX_3F980AC8F624B39D")
+}
+
+model visit {
+  id                              Int                 @id @default(autoincrement())
+  product_supplier_id             Int?
+  technician_id                   Int?
+  product_size                    String?             @db.VarChar(255)
+  product_year                    Int?
+  technician_name                 String?             @db.VarChar(255)
+  comment                         String?             @db.Text
+  report_data                     String?             @db.LongText
+  key_location                    String?             @db.VarChar(255)
+  key_location_description        String?             @db.Text
+  voucher                         String?             @db.VarChar(255)
+  payment                         String?             @db.VarChar(255)
+  amount                          Decimal?            @db.Decimal(10, 2)
+  payed                           Boolean?
+  transaction_id                  String?             @db.VarChar(255)
+  company_id                      Int?
+  customer_id                     Int?
+  timeslot_id                     Int?
+  product_category_id             Int?
+  sales_order_id                  Int?
+  createddate                     DateTime            @db.DateTime(0)
+  visitdate                       DateTime?           @db.DateTime(0)
+  work_hours                      String?             @db.VarChar(255)
+  visit_ended                     Boolean?
+  product_approved                Boolean?
+  signature                       String?             @db.Text
+  case_number                     String?             @db.VarChar(255)
+  reference                       String?             @db.VarChar(255)
+  case_number_int                 Int?
+  total_amount                    Decimal?            @db.Decimal(10, 2)
+  xtra_hours                      String?             @db.Text
+  invoice_int                     Int?
+  visit_ended_comment             String?             @db.LongText
+  product_approved_comment        String?             @db.LongText
+  completed_by_admin              Boolean?            @default(false)
+  dismissed                       Boolean?            @default(false)
+  report_reassigned_comment       String?             @db.LongText
+  report_dismissed_comment        String?             @db.LongText
+  done                            Boolean?            @default(false)
+  discount                        Decimal?            @db.Decimal(10, 2)
+  service_report_pdf_name         String?             @db.VarChar(255)
+  invoice_pdf_name                String?             @db.VarChar(255)
+  street_address                  String?             @db.VarChar(255)
+  zipcode                         String?             @db.VarChar(255)
+  city                            String?             @db.VarChar(255)
+  country                         String?             @db.VarChar(255)
+  case_number_original            String?             @db.VarChar(255)
+  product_supplier_other          String?             @db.VarChar(255)
+  product_model_other             String?             @db.VarChar(255)
+  renew_this_now                  Boolean?            @default(false)
+  renewed                         Boolean?            @default(false)
+  notifications_sent_json         String?             @db.Text
+  static_time_date                DateTime?           @db.Date
+  static_timeslot                 String?             @db.VarChar(255)
+  static_customer_name            String?             @db.VarChar(255)
+  static_customer_street_address  String?             @db.VarChar(255)
+  static_customer_zipcode         String?             @db.VarChar(255)
+  static_customer_city            String?             @db.VarChar(255)
+  static_customer_email           String?             @db.VarChar(255)
+  static_customer_phone           String?             @db.VarChar(255)
+  static_customer_country         String?             @db.VarChar(255)
+  static_customer_cvr             String?             @db.VarChar(255)
+  static_category                 String?             @db.VarChar(255)
+  static_supplier                 String?             @db.VarChar(255)
+  static_model                    String?             @db.VarChar(255)
+  delivery_in_store               Boolean?            @default(false)
+  reassigned                      Boolean?            @default(false)
+  fixed_after_reassigned          Boolean?            @default(false)
+  report_template_id              Int?
+  limbo                           Boolean?            @default(false)
+  invoiced                        Boolean?            @default(false)
+  hourly_rate                     Decimal?            @db.Decimal(10, 2)
+  dismiss_invoice                 Boolean?            @default(false)
+  auto_renewal_active             Boolean?            @default(false)
+  auto_renewal_next_date          DateTime?           @db.DateTime(0)
+  auto_renewal_interval_days      Int?
+  auto_renewal_interval_months    Int?
+  invoice_now                     Boolean?            @default(false)
+  completed_date                  DateTime?           @db.DateTime(0)
+  rrule                           String?             @db.LongText
+  status                          String?             @db.VarChar(255)
+  payment_status                  String?             @db.VarChar(255)
+  start                           DateTime?           @db.DateTime(0)
+  end                             DateTime?           @db.DateTime(0)
+  name                            String?             @db.VarChar(255)
+  description                     String?             @db.LongText
+  info_box1                       String?             @db.LongText
+  info_box2                       String?             @db.LongText
+  report_name                     String?             @db.VarChar(255)
+  report_comment                  String?             @db.Text
+  materiel_id                     Int?
+  type                            Int
+  materiel_type                   Int                 @default(0)
+  coords_lng                      Float?
+  coords_lat                      Float?
+  customer_address_id             Int?
+  invoiced_at                     DateTime?           @db.DateTime(0)
+  report_mail_sent                Boolean?            @default(false)
+  invoice_mail_sent               Boolean?            @default(false)
+  auto_complete                   Boolean?            @default(false)
+  show_time_regs                  Boolean?            @default(false)
+  archived                        Boolean?            @default(false)
+  report_archived_comment         String?             @db.LongText
+  send_booking_mail               Boolean?            @default(false)
+  report_pdf_now                  Boolean?            @default(false)
+  invoice_error                   Boolean?            @default(false)
+  send_invoice_to_customer_parent Boolean?            @default(false)
+  materiel_service                Boolean?            @default(false)
+  internal_comment                String?             @db.Text
+  tags                            String?             @db.LongText
+  product_id                      Int?
+  v3migrated                      Boolean?            @default(true)
+  from_booking_flow               Boolean?            @default(false)
+  timezone_migrated               Boolean?            @default(false)
+  rrule_original                  String?             @db.LongText
+  re_invoiced                     Boolean?            @default(false)
+  total_cost_price                Decimal?            @db.Decimal(10, 2)
+  total_sales_price               Decimal?            @db.Decimal(10, 2)
+  updated_at                      DateTime?           @db.DateTime(0)
+  last_booking_mail_sent          DateTime?           @db.DateTime(0)
+  allday                          Boolean?            @default(false)
+  invoice_archived                Boolean?            @default(false)
+  company                         company?            @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_437EE939979B1AD6")
+  customer_address                customer_address?   @relation(fields: [customer_address_id], references: [id], onUpdate: Restrict, map: "FK_437EE93987EABF7")
+  customer                        customer?           @relation(fields: [customer_id], references: [id], onUpdate: Restrict, map: "FK_437EE9399395C3F3")
+  materiel                        materiel?           @relation(fields: [materiel_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_437EE93916880AAF")
+  category                        category?           @relation(fields: [product_category_id], references: [id], onUpdate: Restrict, map: "FK_437EE939BE6903FD")
+  product                         product?            @relation(fields: [product_id], references: [id], onUpdate: Restrict, map: "FK_437EE9394584665A")
+  supplier                        supplier?           @relation(fields: [product_supplier_id], references: [id], onUpdate: Restrict, map: "FK_437EE93986F2F393")
+  report_template                 report_template?    @relation(fields: [report_template_id], references: [id], onUpdate: Restrict, map: "FK_437EE939B4C2A4B0")
+  sales_order                     sales_order?        @relation(fields: [sales_order_id], references: [id], onUpdate: Restrict, map: "FK_437EE939C023F51C")
+  employee                        employee?           @relation(fields: [technician_id], references: [id], onUpdate: Restrict, map: "FK_437EE939E6C5D496")
+  timeslot                        timeslot?           @relation(fields: [timeslot_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_437EE939F920B9E9")
+  invoice                         invoice[]
+  msg                             msg[]
+  time_reg                        time_reg[]
+  time_reg_sum                    time_reg_sum[]
+  user_notification               user_notification[]
+  visit_document                  visit_document[]
+  visit_employee                  visit_employee[]
+  visit_image                     visit_image[]
+
+  @@index([materiel_id], map: "IDX_437EE93916880AAF")
+  @@index([product_id], map: "IDX_437EE9394584665A")
+  @@index([product_supplier_id], map: "IDX_437EE93986F2F393")
+  @@index([customer_address_id], map: "IDX_437EE93987EABF7")
+  @@index([customer_id], map: "IDX_437EE9399395C3F3")
+  @@index([company_id], map: "IDX_437EE939979B1AD6")
+  @@index([report_template_id], map: "IDX_437EE939B4C2A4B0")
+  @@index([product_category_id], map: "IDX_437EE939BE6903FD")
+  @@index([sales_order_id], map: "IDX_437EE939C023F51C")
+  @@index([technician_id], map: "IDX_437EE939E6C5D496")
+  @@index([timeslot_id], map: "IDX_437EE939F920B9E9")
+  @@index([case_number, street_address, city, zipcode], map: "case_number")
+  @@index([case_number, street_address, city, zipcode, amount], map: "search")
+}
+
+model visit_document {
+  visit_id    Int
+  document_id Int
+  document    document @relation(fields: [document_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "FK_DD3F5461C33F7837")
+  visit       visit    @relation(fields: [visit_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "FK_DD3F546175FA0FF2")
+
+  @@id([visit_id, document_id])
+  @@index([visit_id], map: "IDX_DD3F546175FA0FF2")
+  @@index([document_id], map: "IDX_DD3F5461C33F7837")
+}
+
+model visit_employee {
+  visit_id    Int
+  employee_id Int
+  employee    employee @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "FK_58C9ABB68C03F15C")
+  visit       visit    @relation(fields: [visit_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "FK_58C9ABB675FA0FF2")
+
+  @@id([visit_id, employee_id])
+  @@index([visit_id], map: "IDX_58C9ABB675FA0FF2")
+  @@index([employee_id], map: "IDX_58C9ABB68C03F15C")
+}
+
+model visit_image {
+  visit_id Int
+  image_id Int
+  image    image @relation(fields: [image_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "FK_B088FF3E3DA5256D")
+  visit    visit @relation(fields: [visit_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "FK_B088FF3E75FA0FF2")
+
+  @@id([visit_id, image_id])
+  @@index([image_id], map: "IDX_B088FF3E3DA5256D")
+  @@index([visit_id], map: "IDX_B088FF3E75FA0FF2")
+}
+
+model waitlist {
+  id          Int      @id @default(autoincrement())
+  name        String?  @db.VarChar(255)
+  address     String?  @db.VarChar(255)
+  zip         String?  @db.VarChar(255)
+  city        String?  @db.VarChar(255)
+  email       String?  @db.VarChar(255)
+  phone       String?  @db.VarChar(255)
+  type        String?  @db.VarChar(255)
+  createddate DateTime @db.DateTime(0)
+  company_id  Int?
+  comment     String?  @db.Text
+  company     company? @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_A8533F28979B1AD6")
+
+  @@index([company_id], map: "IDX_A8533F28979B1AD6")
+}
+
+model webhook {
+  id            Int      @id @default(autoincrement())
+  created_at    DateTime @db.DateTime(0)
+  body          String?  @db.MediumText
+  action        String?  @db.VarChar(255)
+  source        String?  @db.VarChar(255)
+  processed     Boolean?
+  error_message String?  @db.Text
+}
+
+model website {
+  id                                           Int                @id @default(autoincrement())
+  company_id                                   Int?
+  customer_company_id                          Int?
+  plesk_id                                     Int?               @unique(map: "UNIQ_476F5DE7160800BE")
+  product_id                                   Int?
+  subscription_id                              Int?
+  domain                                       String             @db.VarChar(255)
+  demo_domain                                  String             @db.VarChar(255)
+  url                                          String             @db.VarChar(255)
+  screendumpPath                               String             @db.VarChar(255)
+  demo_url                                     String             @db.VarChar(255)
+  demo                                         Boolean
+  deactivated_at                               DateTime?          @db.DateTime(0)
+  deactivated_reason                           String?            @db.VarChar(255)
+  name                                         String?            @db.VarChar(255)
+  blueprint                                    String             @db.VarChar(255)
+  website_key                                  String             @db.VarChar(255)
+  website_pass                                 String?            @db.VarChar(255)
+  created_at                                   DateTime           @db.DateTime(0)
+  own_domain                                   Boolean?
+  transfer_confirmed                           Boolean?
+  ip_v4                                        String?            @db.VarChar(15)
+  company_companyTowebsite_company_id          company?           @relation("companyTowebsite_company_id", fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_476F5DE7979B1AD6")
+  company_companyTowebsite_customer_company_id company?           @relation("companyTowebsite_customer_company_id", fields: [customer_company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_476F5DE76A521E54")
+  plesk                                        plesk?             @relation(fields: [plesk_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_476F5DE7160800BE")
+  product                                      product?           @relation(fields: [product_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_476F5DE74584665A")
+  subscription                                 subscription?      @relation(fields: [subscription_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_476F5DE79A1887DC")
+  plesk_stats                                  plesk_stats[]
+  sales_order_line                             sales_order_line[]
+
+  @@index([product_id], map: "IDX_476F5DE74584665A")
+  @@index([customer_company_id], map: "IDX_476F5DE76A521E54")
+  @@index([company_id], map: "IDX_476F5DE7979B1AD6")
+  @@index([subscription_id], map: "IDX_476F5DE79A1887DC")
+}
+
+model website_setting {
+  id                                                                         Int             @id @default(autoincrement())
+  website_created_id                                                         Int?            @unique(map: "UNIQ_335AC43CDFCDD061")
+  website_pre_deactivation_id                                                Int?            @unique(map: "UNIQ_335AC43CAD6D30F4")
+  website_deactivated_id                                                     Int?            @unique(map: "UNIQ_335AC43C3F26CB3E")
+  website_deleted_id                                                         Int?            @unique(map: "UNIQ_335AC43C1EB0DB98")
+  company_id                                                                 Int?
+  company                                                                    company?        @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_335AC43C979B1AD6")
+  email_template_email_templateTowebsite_setting_website_created_id          email_template? @relation("email_templateTowebsite_setting_website_created_id", fields: [website_created_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_335AC43CDFCDD061")
+  email_template_email_templateTowebsite_setting_website_deactivated_id      email_template? @relation("email_templateTowebsite_setting_website_deactivated_id", fields: [website_deactivated_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_335AC43C3F26CB3E")
+  email_template_email_templateTowebsite_setting_website_deleted_id          email_template? @relation("email_templateTowebsite_setting_website_deleted_id", fields: [website_deleted_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_335AC43C1EB0DB98")
+  email_template_email_templateTowebsite_setting_website_pre_deactivation_id email_template? @relation("email_templateTowebsite_setting_website_pre_deactivation_id", fields: [website_pre_deactivation_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "FK_335AC43CAD6D30F4")
+
+  @@index([company_id], map: "IDX_335AC43C979B1AD6")
+}
